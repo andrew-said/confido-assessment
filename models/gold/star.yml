@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: Date dimension for date-related attributes. To be used for slicing by various time periods.
+  - name: dim_invoice_item
+    description: Dimension table for invoice line items. Grain is one row per invoice item and is unique on `invoice_item_key`. Contains attributes related to an invoice line item and related attributes from other dimensions.
+    columns:
+      - name: invoice_item_key
+        tests:
+          - unique
+          - not_null
+  - name: fact_invoice_item
+    description: Fact table for measures related to invoice line items. Grain is one row per invoice item and is unique on `invoice_item_key`.
+    columns:
+      - name: invoice_item_key
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('dim_invoice_item')
+              field: invoice_item_key
+      - name: paid_date_key
+        tests:
+          - not_null
+      - name: quantity
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "quantity = floor(quantity)"
