@@ -1,0 +1,20 @@
+name: confido_assessment
+version: 1.0.0
+config-version: 2
+profile: confido
+
+model-paths: ["models"]
+
+clean-targets:
+  - target
+  - dbt_packages
+  - logs
+
+models:
+  confido_assessment:
+    bronze:
+      +materialized: view
+    silver:
+      +materialized: view
+    gold:
+      +materialized: table

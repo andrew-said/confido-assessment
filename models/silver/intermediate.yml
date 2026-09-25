@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: int_invoice_item
+    description: Intermediate model for invoice line items. Contains attributes related to an invoice line item and related attributes and keys from other dimensions. Grain is one row per invoice item and is unique on `invoice_item_key`.
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "ROUND(unit_price * quantity, 2) = ROUND(total_amount, 2)"
+          config:
+            where: "unit_price IS NOT NULL and quantity IS NOT NULL and total_amount IS NOT NULL"
+    columns:
+      - name: invoice_item_key
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('dim_invoice_item')
+              field: invoice_item_key
+          - relationships:
+              to: ref('fact_invoice_item')
+              field: invoice_item_key
+      - name: invoice_item_id
+        tests:
+          - not_null
+      - name: invoice_id
+        tests:
+          - not_null
+      - name: company_detail_id
+        tests:
+          - not_null
+      - name: global_customer_id
+        tests:
+          - not_null
+      - name: distribution_center_id
+        tests:
+          - not_null
+      - name: item_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+      - name: paid_on_date
+        tests:
+          - not_null
+      - name: quantity
+        tests:
+          - not_null
+      - name: unit_price
+        tests:
+          - not_null
+      - name: invoice_created_timestamp
+        tests:
+          - not_null
+      - name: invoice_updated_timestamp
+        tests:
+          - not_null
+      - name: invoice_item_updated_timestamp
+        tests:
+          - not_null
+      - name: currency_code
+        tests:
+          - accepted_values:
+              values: ['USD', 'CAD']
+              config:
+                where: "currency_code IS NOT NULL"
